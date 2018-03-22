@@ -1,7 +1,10 @@
 package com.ibrahim.ws.server;
 
 import com.ibrahim.data.DbConfig;
+import com.ibrahim.ws.hello.HelloWorld;
 
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.EndpointReference;
 import java.util.logging.Logger;
 
 /**
@@ -46,4 +49,31 @@ public class Server {
         return svrCfg;
     }
 
+    protected static Endpoint publish(SvrConfig cfg, Object svc){
+        String url = String.format("%s://%s:%s/%s",
+                cfg.getListenProtocol(),
+                cfg.getListenHostname(),
+                cfg.getListenPort(),
+                cfg.getListenInterface());
+        Endpoint ep = Endpoint.publish(url, svc);
+        EndpointReference epr = ep.getEndpointReference();
+        LOG.info("\nEndpoint Ref:\n"+epr.toString());
+        return ep;
+    }
+
+    protected static void startHelloWorld(){
+        SvrConfig cfg = getSvrConfig();
+        cfg.setListenHostname(HOST_NAME);
+        cfg.setListenInterface(HELLO_SVC_NAME);
+        cfg.setListenPort(PORT_NO);
+        cfg.setListenProtocol(PROTOCOL);
+
+        HelloWorld hello = new HelloWorld();
+        publish(cfg, hello);
+        LOG.info("Hello Worls Service started successfully");
+    }
+
+    public static void main(String[] args){
+        startHelloWorld();
+    }
 }
